@@ -14,14 +14,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pomodoro Anime",
+  title: "Pomodoro Otaku",
   description:
     "Pomodoro com temática anime e gamificação — foco, streak e evolução de personagem.",
-  applicationName: "Pomodoro Anime",
+  applicationName: "Pomodoro Otaku",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "Pomodoro",
+    title: "Pomodoro Otaku",
     statusBarStyle: "black-translucent",
   },
   icons: {

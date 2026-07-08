@@ -8,7 +8,7 @@ export default function Home() {
           🍅
         </span>
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Pomodoro Anime
+          Pomodoro Otaku
         </h1>
         <p className="max-w-md text-balance text-muted-foreground">
           Foque como um protagonista. Ganhe XP, mantenha o streak e evolua seu

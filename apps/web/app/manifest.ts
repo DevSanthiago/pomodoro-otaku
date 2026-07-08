@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Pomodoro Anime",
-    short_name: "Pomodoro",
+    name: "Pomodoro Otaku",
+    short_name: "Pomodoro Otaku",
     description:
       "Pomodoro com temática anime e gamificação — foco, streak e evolução de personagem.",
     start_url: "/",
