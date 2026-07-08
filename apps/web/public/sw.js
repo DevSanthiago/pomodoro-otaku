@@ -1,4 +1,4 @@
-const CACHE = "pomodoro-anime-v1";
+const CACHE = "pomodoro-otaku-v1";
 const APP_SHELL = ["/", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
