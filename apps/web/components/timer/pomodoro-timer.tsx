@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTimerStore } from "@/stores/timer-store";
-import { remainingMs, progress } from "@/lib/timer-engine";
+import { remainingMs, progress, createSnapshot } from "@/lib/timer-engine";
 import { TimerDisplay } from "./timer-display";
 import { TimerControls } from "./timer-controls";
 
@@ -50,20 +50,21 @@ export function PomodoroTimer() {
     };
   }, [sync]);
 
-  const remaining = mounted ? remainingMs(snapshot, now) : snapshot.durationMs;
-  const ratio = mounted ? progress(snapshot, now) : 0;
+  const hydratedSnapshot = mounted ? snapshot : createSnapshot("focus");
+  const remaining = remainingMs(hydratedSnapshot, now);
+  const ratio = progress(hydratedSnapshot, now);
 
   return (
     <div className="flex flex-col items-center gap-10">
       <TimerDisplay
         remainingMs={remaining}
         progress={ratio}
-        sessionType={snapshot.sessionType}
-        completed={snapshot.status === "completed"}
+        sessionType={hydratedSnapshot.sessionType}
+        completed={hydratedSnapshot.status === "completed"}
       />
       <TimerControls
-        status={snapshot.status}
-        sessionType={snapshot.sessionType}
+        status={hydratedSnapshot.status}
+        sessionType={hydratedSnapshot.sessionType}
         onStart={start}
         onPause={pause}
         onResume={resume}
