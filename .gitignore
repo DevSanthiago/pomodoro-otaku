@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# builds
+.next/
+dist/
+out/
+build/
+
+# env / secrets
+.env
+.env*.local
+!.env.example
+
+# logs
+*.log
+npm-debug.*
+
+# os / editor
+.DS_Store
+*.suo
+*.user
+
+# misc
+*.tsbuildinfo
