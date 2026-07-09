@@ -8,6 +8,7 @@ export interface Task {
   pomodorosEstimados: number;
   pomodorosCompletados: number;
   criadaEm: number;
+  atualizadaEm: number;
 }
 
 export interface NewTaskInput {
@@ -57,10 +58,11 @@ export function createTask(input: NewTaskInput, now: number = Date.now()): Task 
     pomodorosEstimados: clampEstimados(input.pomodorosEstimados),
     pomodorosCompletados: 0,
     criadaEm: now,
+    atualizadaEm: now,
   };
 }
 
-export function applyPatch(task: Task, patch: TaskPatch): Task {
+export function applyPatch(task: Task, patch: TaskPatch, now: number = Date.now()): Task {
   return {
     ...task,
     titulo: patch.titulo != null ? patch.titulo.trim() : task.titulo,
@@ -72,13 +74,15 @@ export function applyPatch(task: Task, patch: TaskPatch): Task {
       patch.pomodorosEstimados != null
         ? clampEstimados(patch.pomodorosEstimados)
         : task.pomodorosEstimados,
+    atualizadaEm: now,
   };
 }
 
-export function toggleTaskDone(task: Task): Task {
+export function toggleTaskDone(task: Task, now: number = Date.now()): Task {
   return {
     ...task,
     status: task.status === "concluida" ? "pendente" : "concluida",
+    atualizadaEm: now,
   };
 }
 

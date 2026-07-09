@@ -15,6 +15,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             entity.Property(task => task.Titulo).HasMaxLength(200);
             entity.Property(task => task.Status).HasConversion<string>().HasMaxLength(20);
+            entity.Property(task => task.AtualizadaEm).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<PomodoroSession>(entity =>
