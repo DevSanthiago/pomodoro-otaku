@@ -1,7 +1,7 @@
-using Api.Data;
+using Api.Domain;
 using Api.Models;
+using Api.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
 
 namespace Api.Endpoints;
 
@@ -11,69 +11,48 @@ public static class TaskEndpoints
     {
         var group = routes.MapGroup("/tasks");
 
-        group.MapGet("/", async (AppDbContext db) =>
-            await db.Tasks.OrderByDescending(task => task.CriadaEm).ToListAsync());
+        group.MapGet("/", (TaskService tasks) => tasks.GetAllAsync());
 
-        group.MapGet("/{id:guid}", async Task<Results<Ok<TaskItem>, NotFound>> (Guid id, AppDbContext db) =>
+        group.MapGet("/{id:guid}", async Task<Results<Ok<TaskItem>, NotFound>> (
+            Guid id,
+            TaskService tasks) =>
         {
-            var task = await db.Tasks.FindAsync(id);
+            var task = await tasks.GetAsync(id);
             return task is null ? TypedResults.NotFound() : TypedResults.Ok(task);
         });
 
         group.MapPost("/", async Task<Results<Created<TaskItem>, ValidationProblem>> (
             CreateTaskDto dto,
-            AppDbContext db) =>
+            TaskService tasks) =>
         {
-            if (string.IsNullOrWhiteSpace(dto.Titulo))
+            var result = await tasks.CreateAsync(dto);
+            return result.Status switch
             {
-                return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-                {
-                    ["titulo"] = ["Título é obrigatório"],
-                });
-            }
-
-            var task = new TaskItem
-            {
-                Id = Guid.NewGuid(),
-                Titulo = dto.Titulo.Trim(),
-                Descricao = string.IsNullOrWhiteSpace(dto.Descricao) ? null : dto.Descricao.Trim(),
-                Status = TaskItemStatus.Pendente,
-                PomodorosEstimados = Math.Max(0, dto.PomodorosEstimados),
-                PomodorosCompletados = 0,
-                CriadaEm = DateTime.UtcNow,
+                ResultStatus.Success => TypedResults.Created($"/tasks/{result.Value!.Id}", result.Value),
+                _ => ValidationResults.From(result),
             };
-
-            db.Tasks.Add(task);
-            await db.SaveChangesAsync();
-            return TypedResults.Created($"/tasks/{task.Id}", task);
         });
 
-        group.MapPut("/{id:guid}", async Task<Results<Ok<TaskItem>, NotFound>> (
+        group.MapPut("/{id:guid}", async Task<Results<Ok<TaskItem>, NotFound, ValidationProblem>> (
             Guid id,
             UpdateTaskDto dto,
-            AppDbContext db) =>
+            TaskService tasks) =>
         {
-            var task = await db.Tasks.FindAsync(id);
-            if (task is null) return TypedResults.NotFound();
-
-            task.Titulo = dto.Titulo.Trim();
-            task.Descricao = string.IsNullOrWhiteSpace(dto.Descricao) ? null : dto.Descricao.Trim();
-            task.Status = dto.Status;
-            task.PomodorosEstimados = Math.Max(0, dto.PomodorosEstimados);
-            task.PomodorosCompletados = Math.Max(0, dto.PomodorosCompletados);
-
-            await db.SaveChangesAsync();
-            return TypedResults.Ok(task);
+            var result = await tasks.UpdateAsync(id, dto);
+            return result.Status switch
+            {
+                ResultStatus.Success => TypedResults.Ok(result.Value),
+                ResultStatus.NotFound => TypedResults.NotFound(),
+                _ => ValidationResults.From(result),
+            };
         });
 
-        group.MapDelete("/{id:guid}", async Task<Results<NoContent, NotFound>> (Guid id, AppDbContext db) =>
+        group.MapDelete("/{id:guid}", async Task<Results<NoContent, NotFound>> (
+            Guid id,
+            TaskService tasks) =>
         {
-            var task = await db.Tasks.FindAsync(id);
-            if (task is null) return TypedResults.NotFound();
-
-            db.Tasks.Remove(task);
-            await db.SaveChangesAsync();
-            return TypedResults.NoContent();
+            var deleted = await tasks.DeleteAsync(id);
+            return deleted ? TypedResults.NoContent() : TypedResults.NotFound();
         });
 
         return group;
