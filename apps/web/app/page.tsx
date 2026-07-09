@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ListTodo } from "lucide-react";
 import { PomodoroTimer } from "@/components/timer/pomodoro-timer";
 
 export default function Home() {
@@ -11,6 +13,14 @@ export default function Home() {
       </div>
 
       <PomodoroTimer />
+
+      <Link
+        href="/tasks"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ListTodo className="size-4" />
+        Tarefas
+      </Link>
     </main>
   );
 }
