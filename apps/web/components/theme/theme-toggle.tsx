@@ -25,10 +25,10 @@ export function ThemeToggle() {
   return (
     <Button
       variant="ghost"
-      size="icon-sm"
+      size="icon"
       onClick={toggle}
       aria-label={dark ? "Ativar tema claro" : "Ativar tema escuro"}
-      className="cursor-pointer"
+      className="size-10 cursor-pointer"
     >
       {!hydrated ? <span className="size-4" /> : dark ? <Moon /> : <Sun />}
     </Button>

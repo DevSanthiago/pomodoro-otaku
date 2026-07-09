@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useGamificationStore } from "@/stores/gamification-store";
+import { CharacterCard } from "./character-card";
 import { OfaMeter } from "./ofa-meter";
 import { StreakBadge } from "./streak-badge";
 import { Achievements } from "./achievements";
@@ -26,6 +27,7 @@ export function GamificationPanel() {
 
   return (
     <div className="flex w-full max-w-md flex-col gap-4">
+      <CharacterCard progress={progress} />
       <OfaMeter progress={progress} />
       <StreakBadge progress={progress} />
       <Achievements progress={progress} />
