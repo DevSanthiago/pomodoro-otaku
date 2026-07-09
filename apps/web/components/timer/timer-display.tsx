@@ -1,10 +1,15 @@
-import { formatRemaining, type SessionType, SESSION_LABELS } from "@/lib/timer-engine";
+import {
+  formatRemaining,
+  type SessionType,
+  type SessionAccent,
+  SESSION_LABELS,
+} from "@/lib/timer-engine";
 
 interface TimerDisplayProps {
   remainingMs: number;
   progress: number;
   sessionType: SessionType;
-  accent: string;
+  accent: SessionAccent;
   completed: boolean;
 }
 
@@ -23,7 +28,13 @@ export function TimerDisplay({
   return (
     <div
       className="relative flex size-72 items-center justify-center"
-      style={{ ["--accent-glow" as string]: accent }}
+      style={
+        {
+          "--accent-base": accent.base,
+          "--accent-strong": accent.strong,
+          "--accent-glow": accent.glow,
+        } as React.CSSProperties
+      }
     >
       <svg className="absolute inset-0 -rotate-90" viewBox="0 0 300 300">
         <circle
@@ -43,8 +54,7 @@ export function TimerDisplay({
           strokeLinecap="round"
           strokeDasharray={CIRCUMFERENCE}
           strokeDashoffset={offset}
-          stroke={accent}
-          className="glow-ring transition-[stroke-dashoffset] duration-500 ease-linear"
+          className="timer-ring transition-[stroke-dashoffset] duration-500 ease-linear"
         />
       </svg>
 
@@ -52,7 +62,7 @@ export function TimerDisplay({
         <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
           {SESSION_LABELS[sessionType]}
         </span>
-        <span className="glow-text font-mono text-6xl font-semibold tabular-nums">
+        <span className="timer-number font-mono text-6xl font-semibold tabular-nums">
           {formatRemaining(remainingMs)}
         </span>
         <span className="h-4 text-xs text-muted-foreground">
