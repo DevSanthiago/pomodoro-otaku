@@ -1,4 +1,5 @@
 import type { Task, TaskStatus } from "./task";
+import type { Progress } from "./gamification";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5279";
 
@@ -63,4 +64,67 @@ export async function listTasksRemote(): Promise<Task[]> {
   }
   const data: ApiTask[] = await response.json();
   return data.map(fromApiTask);
+}
+
+interface ApiProgress {
+  id: string;
+  xpTotal: number;
+  focosConcluidos: number;
+  tarefasConcluidas: number;
+  nivel: number;
+  streakAtual: number;
+  streakRecorde: number;
+  ultimoDiaFoco: string | null;
+  personagemAtual: string;
+  conquistasDesbloqueadas: string[];
+  atualizadaEm: string;
+}
+
+function fromApiProgress(dto: ApiProgress): Progress {
+  return {
+    id: dto.id,
+    xpTotal: dto.xpTotal,
+    focosConcluidos: dto.focosConcluidos,
+    tarefasConcluidas: dto.tarefasConcluidas,
+    nivel: dto.nivel,
+    streakAtual: dto.streakAtual,
+    streakRecorde: dto.streakRecorde,
+    ultimoDiaFoco: dto.ultimoDiaFoco ?? null,
+    personagemAtual: dto.personagemAtual,
+    conquistasDesbloqueadas: dto.conquistasDesbloqueadas ?? [],
+    atualizadaEm: new Date(dto.atualizadaEm).getTime(),
+  };
+}
+
+function toApiProgressBody(progress: Progress) {
+  return {
+    xpTotal: progress.xpTotal,
+    focosConcluidos: progress.focosConcluidos,
+    tarefasConcluidas: progress.tarefasConcluidas,
+    streakAtual: progress.streakAtual,
+    streakRecorde: progress.streakRecorde,
+    ultimoDiaFoco: progress.ultimoDiaFoco,
+    conquistasDesbloqueadas: progress.conquistasDesbloqueadas,
+    atualizadaEm: new Date(progress.atualizadaEm).toISOString(),
+  };
+}
+
+export async function getProgressRemote(): Promise<Progress> {
+  const response = await fetch(`${API_URL}/progress`);
+  if (!response.ok) {
+    throw new Error(`GET /progress respondeu ${response.status}`);
+  }
+  return fromApiProgress(await response.json());
+}
+
+export async function putProgressRemote(progress: Progress): Promise<Progress> {
+  const response = await fetch(`${API_URL}/progress`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(toApiProgressBody(progress)),
+  });
+  if (!response.ok) {
+    throw new Error(`PUT /progress respondeu ${response.status}`);
+  }
+  return fromApiProgress(await response.json());
 }

@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { ListTodo } from "lucide-react";
 import { PomodoroTimer } from "@/components/timer/pomodoro-timer";
+import { GamificationPanel } from "@/components/gamification/gamification-panel";
 
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-10 px-6 py-16">
+    <main className="flex flex-1 flex-col items-center gap-10 px-6 py-16">
       <div className="flex flex-col items-center gap-1 text-center">
         <span className="text-4xl" aria-hidden>
           🍅
@@ -21,6 +22,8 @@ export default function Home() {
         <ListTodo className="size-4" />
         Tarefas
       </Link>
+
+      <GamificationPanel />
     </main>
   );
 }

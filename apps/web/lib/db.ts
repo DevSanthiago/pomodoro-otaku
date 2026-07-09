@@ -1,11 +1,14 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import type { Task } from "./task";
+import type { Progress } from "./gamification";
 
 const DB_NAME = "pomodoro-otaku";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const TASKS_STORE = "tasks";
 const TASKS_BY_CRIADA_EM = "by-criadaEm";
 const OUTBOX_STORE = "outbox";
+const PROGRESS_STORE = "progress";
+const PROGRESS_KEY = "singleton";
 
 export type SyncOpType = "upsert" | "delete";
 
@@ -26,6 +29,10 @@ interface PomodoroOtakuDB extends DBSchema {
     key: number;
     value: SyncOp;
   };
+  progress: {
+    key: string;
+    value: Progress;
+  };
 }
 
 let dbPromise: Promise<IDBPDatabase<PomodoroOtakuDB>> | null = null;
@@ -43,6 +50,9 @@ function getDb(): Promise<IDBPDatabase<PomodoroOtakuDB>> {
         }
         if (oldVersion < 2) {
           db.createObjectStore(OUTBOX_STORE, { keyPath: "seq", autoIncrement: true });
+        }
+        if (oldVersion < 3) {
+          db.createObjectStore(PROGRESS_STORE);
         }
       },
     });
@@ -83,4 +93,14 @@ export async function removeOp(seq: number): Promise<void> {
 export async function countOutboxOps(): Promise<number> {
   const db = await getDb();
   return db.count(OUTBOX_STORE);
+}
+
+export async function getProgress(): Promise<Progress | undefined> {
+  const db = await getDb();
+  return db.get(PROGRESS_STORE, PROGRESS_KEY);
+}
+
+export async function putProgress(progress: Progress): Promise<void> {
+  const db = await getDb();
+  await db.put(PROGRESS_STORE, progress, PROGRESS_KEY);
 }
