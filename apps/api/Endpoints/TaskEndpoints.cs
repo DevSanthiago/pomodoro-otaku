@@ -33,16 +33,15 @@ public static class TaskEndpoints
             };
         });
 
-        group.MapPut("/{id:guid}", async Task<Results<Ok<TaskItem>, NotFound, ValidationProblem>> (
+        group.MapPut("/{id:guid}", async Task<Results<Ok<TaskItem>, ValidationProblem>> (
             Guid id,
-            UpdateTaskDto dto,
+            PutTaskDto dto,
             TaskService tasks) =>
         {
-            var result = await tasks.UpdateAsync(id, dto);
+            var result = await tasks.UpsertAsync(id, dto);
             return result.Status switch
             {
                 ResultStatus.Success => TypedResults.Ok(result.Value),
-                ResultStatus.NotFound => TypedResults.NotFound(),
                 _ => ValidationResults.From(result),
             };
         });

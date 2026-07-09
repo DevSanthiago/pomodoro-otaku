@@ -16,4 +16,5 @@ public class TaskItem
     public int PomodorosEstimados { get; set; }
     public int PomodorosCompletados { get; set; }
     public DateTime CriadaEm { get; set; }
+    public DateTime AtualizadaEm { get; set; }
 }

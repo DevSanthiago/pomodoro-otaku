@@ -18,6 +18,7 @@ public class TaskService(AppDbContext db)
         var error = TaskRules.ValidateTitulo(dto.Titulo);
         if (error is not null) return OperationResult<TaskItem>.Invalid("titulo", error);
 
+        var now = DateTime.UtcNow;
         var task = new TaskItem
         {
             Id = Guid.NewGuid(),
@@ -26,7 +27,8 @@ public class TaskService(AppDbContext db)
             Status = TaskItemStatus.Pendente,
             PomodorosEstimados = TaskRules.ClampEstimados(dto.PomodorosEstimados),
             PomodorosCompletados = 0,
-            CriadaEm = DateTime.UtcNow,
+            CriadaEm = now,
+            AtualizadaEm = now,
         };
 
         db.Tasks.Add(task);
@@ -34,19 +36,29 @@ public class TaskService(AppDbContext db)
         return OperationResult<TaskItem>.Success(task);
     }
 
-    public async Task<OperationResult<TaskItem>> UpdateAsync(Guid id, UpdateTaskDto dto)
+    public async Task<OperationResult<TaskItem>> UpsertAsync(Guid id, PutTaskDto dto)
     {
         var error = TaskRules.ValidateTitulo(dto.Titulo);
         if (error is not null) return OperationResult<TaskItem>.Invalid("titulo", error);
 
         var task = await db.Tasks.FindAsync(id);
-        if (task is null) return OperationResult<TaskItem>.NotFound();
+
+        if (task is null)
+        {
+            task = new TaskItem { Id = id, CriadaEm = dto.CriadaEm };
+            db.Tasks.Add(task);
+        }
+        else if (dto.AtualizadaEm < task.AtualizadaEm)
+        {
+            return OperationResult<TaskItem>.Success(task);
+        }
 
         task.Titulo = TaskRules.NormalizeTitulo(dto.Titulo);
         task.Descricao = TaskRules.NormalizeDescricao(dto.Descricao);
         task.Status = dto.Status;
         task.PomodorosEstimados = TaskRules.ClampEstimados(dto.PomodorosEstimados);
         task.PomodorosCompletados = TaskRules.ClampCompletados(dto.PomodorosCompletados);
+        task.AtualizadaEm = dto.AtualizadaEm;
 
         await db.SaveChangesAsync();
         return OperationResult<TaskItem>.Success(task);
