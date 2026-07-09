@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTimerStore } from "@/stores/timer-store";
 import { remainingMs, progress, createSnapshot } from "@/lib/timer-engine";
+import { useHydrated } from "@/lib/use-hydrated";
 import { TimerDisplay } from "./timer-display";
 import { TimerControls } from "./timer-controls";
 
@@ -16,14 +17,11 @@ export function PomodoroTimer() {
   const setSessionType = useTimerStore((s) => s.setSessionType);
   const sync = useTimerStore((s) => s.sync);
 
-  const [mounted, setMounted] = useState(false);
+  const hydrated = useHydrated();
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
-    setMounted(true);
-    const n = Date.now();
-    setNow(n);
-    sync(n);
+    sync(Date.now());
   }, [sync]);
 
   useEffect(() => {
@@ -50,7 +48,7 @@ export function PomodoroTimer() {
     };
   }, [sync]);
 
-  const hydratedSnapshot = mounted ? snapshot : createSnapshot("focus");
+  const hydratedSnapshot = hydrated ? snapshot : createSnapshot("focus");
   const remaining = remainingMs(hydratedSnapshot, now);
   const ratio = progress(hydratedSnapshot, now);
 
