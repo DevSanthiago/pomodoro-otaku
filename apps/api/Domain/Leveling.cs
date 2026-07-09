@@ -1,4 +1,4 @@
-namespace Api.Models;
+namespace Api.Domain;
 
 public static class Leveling
 {

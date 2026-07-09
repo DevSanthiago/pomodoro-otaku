@@ -1,7 +1,7 @@
-using Api.Data;
+using Api.Domain;
 using Api.Models;
+using Api.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
 
 namespace Api.Endpoints;
 
@@ -11,51 +11,20 @@ public static class PomodoroSessionEndpoints
     {
         var group = routes.MapGroup("/pomodoro-sessions");
 
-        group.MapGet("/", async (Guid? taskId, AppDbContext db) =>
-        {
-            var query = db.PomodoroSessions.AsQueryable();
-            if (taskId is not null)
-            {
-                query = query.Where(session => session.TaskId == taskId);
-            }
-
-            return await query.OrderByDescending(session => session.IniciadoEm).ToListAsync();
-        });
+        group.MapGet("/", (Guid? taskId, PomodoroSessionService sessions) =>
+            sessions.GetAsync(taskId));
 
         group.MapPost("/", async Task<Results<Created<PomodoroSession>, ValidationProblem>> (
             CreateSessionDto dto,
-            AppDbContext db) =>
+            PomodoroSessionService sessions) =>
         {
-            if (dto.DuracaoSegundos <= 0)
+            var result = await sessions.CreateAsync(dto);
+            return result.Status switch
             {
-                return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-                {
-                    ["duracaoSegundos"] = ["Duração deve ser maior que zero"],
-                });
-            }
-
-            if (dto.TaskId is not null && !await db.Tasks.AnyAsync(task => task.Id == dto.TaskId))
-            {
-                return TypedResults.ValidationProblem(new Dictionary<string, string[]>
-                {
-                    ["taskId"] = ["Tarefa não encontrada"],
-                });
-            }
-
-            var session = new PomodoroSession
-            {
-                Id = Guid.NewGuid(),
-                TaskId = dto.TaskId,
-                Tipo = dto.Tipo,
-                DuracaoSegundos = dto.DuracaoSegundos,
-                IniciadoEm = dto.IniciadoEm,
-                CompletadoEm = dto.CompletadoEm,
-                FoiInterrompido = dto.FoiInterrompido,
+                ResultStatus.Success =>
+                    TypedResults.Created($"/pomodoro-sessions/{result.Value!.Id}", result.Value),
+                _ => ValidationResults.From(result),
             };
-
-            db.PomodoroSessions.Add(session);
-            await db.SaveChangesAsync();
-            return TypedResults.Created($"/pomodoro-sessions/{session.Id}", session);
         });
 
         return group;
