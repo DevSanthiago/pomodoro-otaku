@@ -37,11 +37,16 @@ export function TimerControls({
     <div className="flex flex-col items-center gap-6">
       <div
         className="relative grid grid-cols-3 rounded-full bg-muted p-1"
-        style={{ ["--accent-glow" as string]: SESSION_ACCENTS[sessionType] }}
+        style={
+          {
+            "--accent-base": SESSION_ACCENTS[sessionType].base,
+            "--accent-glow": SESSION_ACCENTS[sessionType].glow,
+          } as React.CSSProperties
+        }
       >
         <div
           aria-hidden
-          className="pill-slide glow-pill absolute inset-y-1 left-1 rounded-full bg-background transition-transform duration-300 ease-out"
+          className="pill-slide glow-pill absolute inset-y-1 left-1 rounded-full transition-transform duration-300 ease-out"
           style={{
             width: "calc((100% - 0.5rem) / 3)",
             transform: `translateX(${activeIndex * 100}%)`,
@@ -54,11 +59,10 @@ export function TimerControls({
             disabled={disabled}
             onClick={() => onSelectSession(type)}
             aria-pressed={type === sessionType}
+            style={type === sessionType ? { color: "oklch(0.2 0 0)" } : undefined}
             className={cn(
               "relative z-10 cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-colors disabled:cursor-not-allowed",
-              type === sessionType
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground",
+              type === sessionType ? "" : "text-muted-foreground hover:text-foreground",
             )}
           >
             {SESSION_LABELS[type]}

@@ -14,10 +14,28 @@ export const SESSION_LABELS: Record<SessionType, string> = {
   longBreak: "Pausa longa",
 };
 
-export const SESSION_ACCENTS: Record<SessionType, string> = {
-  focus: "oklch(0.78 0.17 150)",
-  shortBreak: "oklch(0.8 0.12 210)",
-  longBreak: "oklch(0.72 0.15 265)",
+export interface SessionAccent {
+  base: string;
+  strong: string;
+  glow: string;
+}
+
+export const SESSION_ACCENTS: Record<SessionType, SessionAccent> = {
+  focus: {
+    base: "oklch(0.78 0.17 150)",
+    strong: "oklch(0.52 0.15 150)",
+    glow: "oklch(0.88 0.15 150)",
+  },
+  shortBreak: {
+    base: "oklch(0.8 0.12 210)",
+    strong: "oklch(0.54 0.13 210)",
+    glow: "oklch(0.9 0.1 210)",
+  },
+  longBreak: {
+    base: "oklch(0.72 0.15 265)",
+    strong: "oklch(0.55 0.17 265)",
+    glow: "oklch(0.86 0.13 265)",
+  },
 };
 
 export const FOCUS_SESSIONS_PER_LONG_BREAK = 4;
