@@ -10,8 +10,8 @@ public static class ProgressEndpoints
 
         group.MapGet("/", (ProgressService progress) => progress.GetOrCreateAsync());
 
-        group.MapPost("/xp", (AddXpDto dto, ProgressService progress) =>
-            progress.AddXpAsync(dto.Xp));
+        group.MapPut("/", (PutProgressDto dto, ProgressService progress) =>
+            progress.UpsertAsync(dto));
 
         return group;
     }

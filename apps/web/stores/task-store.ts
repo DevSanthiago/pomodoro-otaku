@@ -7,6 +7,7 @@ import {
   countOutboxOps,
 } from "@/lib/db";
 import { syncTasks } from "@/lib/sync/sync-engine";
+import { useGamificationStore } from "@/stores/gamification-store";
 import {
   createTask,
   applyPatch,
@@ -76,6 +77,9 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     set({
       tasks: sortTasks(get().tasks.map((task) => (task.id === id ? updated : task))),
     });
+    if (updated.status === "concluida") {
+      void useGamificationStore.getState().registrarTarefaConcluida();
+    }
     await reloadPending(set);
     void get().sync();
   },

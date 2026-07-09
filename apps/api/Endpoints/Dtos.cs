@@ -23,4 +23,13 @@ public record CreateSessionDto(
     bool FoiInterrompido
 );
 
-public record AddXpDto(int Xp);
+public record PutProgressDto(
+    int XpTotal,
+    int FocosConcluidos,
+    int TarefasConcluidas,
+    int StreakAtual,
+    int StreakRecorde,
+    DateOnly? UltimoDiaFoco,
+    List<string> ConquistasDesbloqueadas,
+    DateTime AtualizadaEm
+);

@@ -31,6 +31,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<UserProgress>(entity =>
         {
             entity.Property(progress => progress.PersonagemAtual).HasMaxLength(100);
+            entity.Property(progress => progress.AtualizadaEm).HasDefaultValueSql("now()");
         });
     }
 }
