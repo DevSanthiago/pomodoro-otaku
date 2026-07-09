@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Timer } from "lucide-react";
 import { TaskList } from "@/components/tasks/task-list";
 
 export const metadata: Metadata = {
@@ -11,15 +9,11 @@ export const metadata: Metadata = {
 export default function TasksPage() {
   return (
     <main className="flex flex-1 flex-col items-center gap-8 px-6 py-12">
-      <div className="flex w-full max-w-md items-center justify-between">
+      <div className="flex w-full max-w-md flex-col gap-1">
         <h1 className="text-xl font-bold tracking-tight">Tarefas</h1>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <Timer className="size-4" />
-          Timer
-        </Link>
+        <p className="text-sm text-muted-foreground">
+          Organize o que vai focar — cada tarefa concluída rende XP.
+        </p>
       </div>
 
       <TaskList />

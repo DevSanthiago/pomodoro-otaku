@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   SESSION_LABELS,
+  SESSION_ACCENTS,
   type SessionType,
   type TimerStatus,
 } from "@/lib/timer-engine";
@@ -28,19 +30,39 @@ export function TimerControls({
   onAdvance,
   onSelectSession,
 }: TimerControlsProps) {
+  const activeIndex = SESSION_ORDER.indexOf(sessionType);
+  const disabled = status === "running";
+
   return (
     <div className="flex flex-col items-center gap-6">
-      <div className="flex gap-2">
+      <div
+        className="relative grid grid-cols-3 rounded-full bg-muted p-1"
+        style={{ ["--accent-glow" as string]: SESSION_ACCENTS[sessionType] }}
+      >
+        <div
+          aria-hidden
+          className="pill-slide glow-pill absolute inset-y-1 left-1 rounded-full bg-background transition-transform duration-300 ease-out"
+          style={{
+            width: "calc((100% - 0.5rem) / 3)",
+            transform: `translateX(${activeIndex * 100}%)`,
+          }}
+        />
         {SESSION_ORDER.map((type) => (
-          <Button
+          <button
             key={type}
-            size="sm"
-            variant={type === sessionType ? "default" : "outline"}
-            disabled={status === "running"}
+            type="button"
+            disabled={disabled}
             onClick={() => onSelectSession(type)}
+            aria-pressed={type === sessionType}
+            className={cn(
+              "relative z-10 cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-colors disabled:cursor-not-allowed",
+              type === sessionType
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground",
+            )}
           >
             {SESSION_LABELS[type]}
-          </Button>
+          </button>
         ))}
       </div>
 
