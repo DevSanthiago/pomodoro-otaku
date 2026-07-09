@@ -4,6 +4,7 @@ interface TimerDisplayProps {
   remainingMs: number;
   progress: number;
   sessionType: SessionType;
+  accent: string;
   completed: boolean;
 }
 
@@ -14,12 +15,16 @@ export function TimerDisplay({
   remainingMs,
   progress,
   sessionType,
+  accent,
   completed,
 }: TimerDisplayProps) {
   const offset = CIRCUMFERENCE * (1 - progress);
 
   return (
-    <div className="relative flex size-72 items-center justify-center">
+    <div
+      className="relative flex size-72 items-center justify-center"
+      style={{ ["--accent-glow" as string]: accent }}
+    >
       <svg className="absolute inset-0 -rotate-90" viewBox="0 0 300 300">
         <circle
           cx="150"
@@ -38,7 +43,8 @@ export function TimerDisplay({
           strokeLinecap="round"
           strokeDasharray={CIRCUMFERENCE}
           strokeDashoffset={offset}
-          className="stroke-primary transition-[stroke-dashoffset] duration-500 ease-linear"
+          stroke={accent}
+          className="glow-ring transition-[stroke-dashoffset] duration-500 ease-linear"
         />
       </svg>
 
@@ -46,11 +52,11 @@ export function TimerDisplay({
         <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
           {SESSION_LABELS[sessionType]}
         </span>
-        <span className="font-mono text-6xl font-semibold tabular-nums">
+        <span className="glow-text font-mono text-6xl font-semibold tabular-nums">
           {formatRemaining(remainingMs)}
         </span>
         <span className="h-4 text-xs text-muted-foreground">
-          {completed ? "Concluído! 🎉" : ""}
+          {completed ? "Concluído!" : ""}
         </span>
       </div>
     </div>

@@ -14,6 +14,12 @@ export const SESSION_LABELS: Record<SessionType, string> = {
   longBreak: "Pausa longa",
 };
 
+export const SESSION_ACCENTS: Record<SessionType, string> = {
+  focus: "oklch(0.78 0.17 150)",
+  shortBreak: "oklch(0.8 0.12 210)",
+  longBreak: "oklch(0.72 0.15 265)",
+};
+
 export const FOCUS_SESSIONS_PER_LONG_BREAK = 4;
 
 export interface TimerSnapshot {
