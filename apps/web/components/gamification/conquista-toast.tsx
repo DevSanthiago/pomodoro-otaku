@@ -17,7 +17,10 @@ export function ConquistaToast() {
   if (!nova) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
+    <div
+      className="fixed inset-x-0 z-50 flex justify-center px-4"
+      style={{ bottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
+    >
       <div className="flex items-center gap-2 rounded-lg border border-primary/50 bg-background px-4 py-2 shadow-lg">
         <Award className="size-5 text-primary" />
         <div className="flex flex-col">

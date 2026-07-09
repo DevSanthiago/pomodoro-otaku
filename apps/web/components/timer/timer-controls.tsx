@@ -61,7 +61,7 @@ export function TimerControls({
             aria-pressed={type === sessionType}
             style={type === sessionType ? { color: "oklch(0.2 0 0)" } : undefined}
             className={cn(
-              "relative z-10 cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-colors disabled:cursor-not-allowed",
+              "relative z-10 cursor-pointer rounded-full px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors disabled:cursor-not-allowed sm:px-4",
               type === sessionType ? "" : "text-muted-foreground hover:text-foreground",
             )}
           >
