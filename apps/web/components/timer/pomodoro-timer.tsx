@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTimerStore } from "@/stores/timer-store";
-import { remainingMs, progress, createSnapshot, SESSION_ACCENTS } from "@/lib/timer-engine";
+import { remainingMs, progress, createSnapshot } from "@/lib/timer-engine";
 import { useHydrated } from "@/lib/use-hydrated";
 import { TimerDisplay } from "./timer-display";
 import { TimerControls } from "./timer-controls";
@@ -58,7 +58,6 @@ export function PomodoroTimer() {
         remainingMs={remaining}
         progress={ratio}
         sessionType={hydratedSnapshot.sessionType}
-        accent={SESSION_ACCENTS[hydratedSnapshot.sessionType]}
         completed={hydratedSnapshot.status === "completed"}
       />
       <TimerControls
