@@ -4,15 +4,18 @@ import {
   createSnapshot,
   isExpired,
   nextSessionType,
+  minToMs,
+  DEFAULT_DURATION_MIN,
   type SessionType,
   type TimerSnapshot,
-  DEFAULT_DURATIONS_MS,
+  type DurationMin,
 } from "@/lib/timer-engine";
 import { FOCOS_POR_CICLO } from "@/lib/gamification";
 import { useGamificationStore } from "@/stores/gamification-store";
 
 interface TimerState {
   snapshot: TimerSnapshot;
+  durations: Record<SessionType, DurationMin>;
   completedFocusCount: number;
   completedSessions: number;
   start: () => void;
@@ -20,6 +23,7 @@ interface TimerState {
   resume: () => void;
   reset: () => void;
   setSessionType: (sessionType: SessionType) => void;
+  setDuration: (sessionType: SessionType, durationMin: DurationMin) => void;
   advance: () => void;
   sync: (now: number) => void;
 }
@@ -27,7 +31,8 @@ interface TimerState {
 export const useTimerStore = create<TimerState>()(
   persist(
     (set, get) => ({
-      snapshot: createSnapshot("focus"),
+      snapshot: createSnapshot("focus", minToMs(DEFAULT_DURATION_MIN.focus)),
+      durations: { ...DEFAULT_DURATION_MIN },
       completedFocusCount: 0,
       completedSessions: 0,
 
@@ -66,17 +71,34 @@ export const useTimerStore = create<TimerState>()(
       },
 
       reset: () => {
-        const { snapshot } = get();
-        set({ snapshot: createSnapshot(snapshot.sessionType) });
+        const { snapshot, durations } = get();
+        set({
+          snapshot: createSnapshot(snapshot.sessionType, minToMs(durations[snapshot.sessionType])),
+        });
       },
 
       setSessionType: (sessionType) => {
-        set({ snapshot: createSnapshot(sessionType) });
+        const { durations } = get();
+        set({ snapshot: createSnapshot(sessionType, minToMs(durations[sessionType])) });
+      },
+
+      setDuration: (sessionType, durationMin) => {
+        const { snapshot, durations } = get();
+        const nextDurations = { ...durations, [sessionType]: durationMin };
+        if (snapshot.sessionType === sessionType && snapshot.status !== "running") {
+          set({
+            durations: nextDurations,
+            snapshot: createSnapshot(sessionType, minToMs(durationMin)),
+          });
+        } else {
+          set({ durations: nextDurations });
+        }
       },
 
       advance: () => {
-        const { snapshot, completedFocusCount } = get();
-        set({ snapshot: createSnapshot(nextSessionType(snapshot.sessionType, completedFocusCount)) });
+        const { snapshot, completedFocusCount, durations } = get();
+        const next = nextSessionType(snapshot.sessionType, completedFocusCount);
+        set({ snapshot: createSnapshot(next, minToMs(durations[next])) });
       },
 
       sync: (now) => {
@@ -105,14 +127,18 @@ export const useTimerStore = create<TimerState>()(
       name: "pomodoro-otaku-timer",
       partialize: (state) => ({
         snapshot: state.snapshot,
+        durations: state.durations,
         completedFocusCount: state.completedFocusCount,
         completedSessions: state.completedSessions,
       }),
       merge: (persisted, current) => {
         const incoming = (persisted as Partial<TimerState>) ?? {};
-        const snapshot = incoming.snapshot ?? current.snapshot;
-        const durationMs = DEFAULT_DURATIONS_MS[snapshot.sessionType] ?? snapshot.durationMs;
-        return { ...current, ...incoming, snapshot: { ...snapshot, durationMs } };
+        return {
+          ...current,
+          ...incoming,
+          durations: { ...current.durations, ...(incoming.durations ?? {}) },
+          snapshot: incoming.snapshot ?? current.snapshot,
+        };
       },
     },
   ),

@@ -1,9 +1,9 @@
-import { formatRemaining, type SessionType, SESSION_LABELS } from "@/lib/timer-engine";
+import { formatRemaining } from "@/lib/timer-engine";
 
 interface TimerDisplayProps {
   remainingMs: number;
   progress: number;
-  sessionType: SessionType;
+  label: string;
   completed: boolean;
 }
 
@@ -13,7 +13,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 export function TimerDisplay({
   remainingMs,
   progress,
-  sessionType,
+  label,
   completed,
 }: TimerDisplayProps) {
   const offset = CIRCUMFERENCE * (1 - progress);
@@ -43,8 +43,11 @@ export function TimerDisplay({
       </svg>
 
       <div className="flex flex-col items-center gap-1">
-        <span className="text-xs uppercase tracking-[0.3em] text-white/60">
-          {SESSION_LABELS[sessionType]}
+        <span
+          className="text-sm font-bold uppercase tracking-[0.18em] text-white"
+          style={{ textShadow: "0 1px 10px rgba(0,0,0,0.65)" }}
+        >
+          {label}
         </span>
         <span className="timer-number font-mono text-6xl font-semibold tabular-nums">
           {formatRemaining(remainingMs)}

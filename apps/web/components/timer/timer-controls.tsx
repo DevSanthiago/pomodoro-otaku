@@ -1,5 +1,11 @@
 import { cn } from "@/lib/utils";
-import { SESSION_LABELS, type SessionType, type TimerStatus } from "@/lib/timer-engine";
+import {
+  SESSION_LABELS,
+  type SessionType,
+  type TimerStatus,
+  type DurationMin,
+} from "@/lib/timer-engine";
+import { DurationPicker } from "./duration-picker";
 
 const SESSION_ORDER: SessionType[] = ["focus", "shortBreak", "longBreak"];
 
@@ -9,23 +15,27 @@ const ACTION_PILL =
 interface TimerControlsProps {
   status: TimerStatus;
   sessionType: SessionType;
+  durationMin: DurationMin;
   onStart: () => void;
   onPause: () => void;
   onResume: () => void;
   onReset: () => void;
   onAdvance: () => void;
   onSelectSession: (sessionType: SessionType) => void;
+  onSelectDuration: (durationMin: DurationMin) => void;
 }
 
 export function TimerControls({
   status,
   sessionType,
+  durationMin,
   onStart,
   onPause,
   onResume,
   onReset,
   onAdvance,
   onSelectSession,
+  onSelectDuration,
 }: TimerControlsProps) {
   const activeIndex = SESSION_ORDER.indexOf(sessionType);
   const disabled = status === "running";
@@ -57,6 +67,13 @@ export function TimerControls({
           </button>
         ))}
       </div>
+
+      <DurationPicker
+        sessionType={sessionType}
+        durationMin={durationMin}
+        disabled={disabled}
+        onSelect={onSelectDuration}
+      />
 
       <div className="flex items-center gap-3">
         {status === "idle" && (

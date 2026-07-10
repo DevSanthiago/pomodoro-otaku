@@ -2,10 +2,22 @@ export type SessionType = "focus" | "shortBreak" | "longBreak";
 
 export type TimerStatus = "idle" | "running" | "paused" | "completed";
 
-export const DEFAULT_DURATIONS_MS: Record<SessionType, number> = {
-  focus: 25 * 60_000,
-  shortBreak: 5 * 60_000,
-  longBreak: 15 * 60_000,
+export const DURATION_OPTIONS_MIN = [3, 5, 15, 25, 60] as const;
+
+export type DurationMin = (typeof DURATION_OPTIONS_MIN)[number];
+
+export const FOCUS_QUIRKS: Record<DurationMin, string> = {
+  3: "Gearshift",
+  5: "Fa Jin",
+  15: "Danger Sense",
+  25: "Blackwhip",
+  60: "Float",
+};
+
+export const DEFAULT_DURATION_MIN: Record<SessionType, DurationMin> = {
+  focus: 25,
+  shortBreak: 5,
+  longBreak: 15,
 };
 
 export const SESSION_LABELS: Record<SessionType, string> = {
@@ -14,31 +26,15 @@ export const SESSION_LABELS: Record<SessionType, string> = {
   longBreak: "Pausa longa",
 };
 
-export interface SessionAccent {
-  base: string;
-  strong: string;
-  glow: string;
+export const FOCUS_SESSIONS_PER_LONG_BREAK = 4;
+
+export function minToMs(minutes: number): number {
+  return minutes * 60_000;
 }
 
-export const SESSION_ACCENTS: Record<SessionType, SessionAccent> = {
-  focus: {
-    base: "oklch(0.78 0.17 150)",
-    strong: "oklch(0.52 0.15 150)",
-    glow: "oklch(0.88 0.15 150)",
-  },
-  shortBreak: {
-    base: "oklch(0.8 0.12 210)",
-    strong: "oklch(0.54 0.13 210)",
-    glow: "oklch(0.9 0.1 210)",
-  },
-  longBreak: {
-    base: "oklch(0.72 0.15 265)",
-    strong: "oklch(0.55 0.17 265)",
-    glow: "oklch(0.86 0.13 265)",
-  },
-};
-
-export const FOCUS_SESSIONS_PER_LONG_BREAK = 4;
+export function sessionLabel(sessionType: SessionType, durationMin: DurationMin): string {
+  return sessionType === "focus" ? FOCUS_QUIRKS[durationMin] : SESSION_LABELS[sessionType];
+}
 
 export interface TimerSnapshot {
   status: TimerStatus;
@@ -48,11 +44,11 @@ export interface TimerSnapshot {
   elapsedBeforePauseMs: number;
 }
 
-export function createSnapshot(sessionType: SessionType): TimerSnapshot {
+export function createSnapshot(sessionType: SessionType, durationMs: number): TimerSnapshot {
   return {
     status: "idle",
     sessionType,
-    durationMs: DEFAULT_DURATIONS_MS[sessionType],
+    durationMs,
     startedAt: null,
     elapsedBeforePauseMs: 0,
   };
