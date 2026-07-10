@@ -4,6 +4,7 @@ import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { ConquistaToast } from "@/components/gamification/conquista-toast";
 import { TopBar } from "@/components/layout/top-bar";
+import { PillarBackground } from "@/components/backgrounds/pillar-background";
 
 const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d);}catch(e){}})();`;
 
@@ -58,8 +59,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <ServiceWorkerRegister />
-        <TopBar />
-        {children}
+        <PillarBackground />
+        <div className="relative z-10 flex flex-1 flex-col">
+          <TopBar />
+          {children}
+        </div>
         <ConquistaToast />
       </body>
     </html>
