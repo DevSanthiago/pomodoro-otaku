@@ -11,7 +11,7 @@ import {
   DEFAULT_DURATION_MIN,
 } from "@/lib/timer-engine";
 import { useHydrated } from "@/lib/use-hydrated";
-import { TimerDisplay } from "./timer-display";
+import { TimerClock } from "./timer-clock";
 import { TimerControls } from "./timer-controls";
 
 export function PomodoroTimer() {
@@ -67,23 +67,25 @@ export function PomodoroTimer() {
 
   return (
     <div className="flex flex-col items-center gap-10">
-      <TimerDisplay
+      <TimerClock
         remainingMs={remaining}
         progress={ratio}
         label={sessionLabel(activeSession, durationMin)}
         completed={hydratedSnapshot.status === "completed"}
+        sessionType={activeSession}
+        durationMin={durationMin}
+        canEdit={hydratedSnapshot.status !== "running"}
+        onSelectDuration={(min) => setDuration(activeSession, min)}
       />
       <TimerControls
         status={hydratedSnapshot.status}
         sessionType={activeSession}
-        durationMin={durationMin}
         onStart={start}
         onPause={pause}
         onResume={resume}
         onReset={reset}
         onAdvance={advance}
         onSelectSession={setSessionType}
-        onSelectDuration={(min) => setDuration(activeSession, min)}
       />
     </div>
   );

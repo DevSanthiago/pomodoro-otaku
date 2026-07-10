@@ -1,0 +1,84 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import type { DurationMin, SessionType } from "@/lib/timer-engine";
+import { TimerDisplay } from "./timer-display";
+import { DurationMenu } from "./duration-menu";
+
+interface TimerClockProps {
+  remainingMs: number;
+  progress: number;
+  label: string;
+  completed: boolean;
+  sessionType: SessionType;
+  durationMin: DurationMin;
+  canEdit: boolean;
+  onSelectDuration: (durationMin: DurationMin) => void;
+}
+
+export function TimerClock({
+  remainingMs,
+  progress,
+  label,
+  completed,
+  sessionType,
+  durationMin,
+  canEdit,
+  onSelectDuration,
+}: TimerClockProps) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative flex flex-col items-center">
+      <button
+        type="button"
+        disabled={!canEdit}
+        onClick={() => setOpen((value) => !value)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Escolher duração"
+        className="group relative rounded-full outline-none disabled:cursor-default"
+      >
+        <span
+          aria-hidden
+          className="absolute inset-4 rounded-full bg-white/[0.06] ring-1 ring-white/10 backdrop-blur-md transition-colors group-hover:bg-white/[0.1] group-focus-visible:bg-white/[0.1]"
+        />
+        <TimerDisplay
+          remainingMs={remainingMs}
+          progress={progress}
+          label={label}
+          completed={completed}
+          editable={canEdit}
+        />
+      </button>
+
+      {open && (
+        <DurationMenu
+          sessionType={sessionType}
+          durationMin={durationMin}
+          onSelect={(min) => {
+            onSelectDuration(min);
+            setOpen(false);
+          }}
+        />
+      )}
+    </div>
+  );
+}
