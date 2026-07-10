@@ -68,7 +68,7 @@ const LightPillar: React.FC<LightPillarProps> = ({
 
     let effectiveQuality = quality;
     if (isLowEndDevice && quality === 'high') effectiveQuality = 'medium';
-    if (isMobile && quality !== 'low') effectiveQuality = 'low';
+    if (isMobile && quality === 'high') effectiveQuality = 'medium';
 
     const qualitySettings = {
       low: { iterations: 24, waveIterations: 1, pixelRatio: 0.5, precision: 'mediump', stepMultiplier: 1.5 },
@@ -246,7 +246,12 @@ const LightPillar: React.FC<LightPillarProps> = ({
         float rnd = noise(gl_FragCoord.xy);
         color -= rnd / 15.0 * uNoiseIntensity;
 
-        gl_FragColor = vec4(color * uIntensity, 1.0);
+        // Alpha from luminance so dark areas are transparent even where
+        // mix-blend-mode: screen is not honored (iOS Safari). Keeps the
+        // pillar visible without an opaque black layer behind it.
+        vec3 finalColor = color * uIntensity;
+        float alpha = clamp(max(finalColor.r, max(finalColor.g, finalColor.b)) * 1.4, 0.0, 1.0);
+        gl_FragColor = vec4(finalColor, alpha);
       }
     `;
 

@@ -1,13 +1,10 @@
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  SESSION_LABELS,
-  SESSION_ACCENTS,
-  type SessionType,
-  type TimerStatus,
-} from "@/lib/timer-engine";
+import { SESSION_LABELS, type SessionType, type TimerStatus } from "@/lib/timer-engine";
 
 const SESSION_ORDER: SessionType[] = ["focus", "shortBreak", "longBreak"];
+
+const ACTION_PILL =
+  "cursor-pointer rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-black shadow-lg transition-transform duration-100 ease-out hover:bg-white/90 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:pointer-events-none disabled:opacity-50";
 
 interface TimerControlsProps {
   status: TimerStatus;
@@ -35,15 +32,7 @@ export function TimerControls({
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div
-        className="relative grid grid-cols-3 rounded-full bg-muted p-1"
-        style={
-          {
-            "--accent-base": SESSION_ACCENTS[sessionType].base,
-            "--accent-glow": SESSION_ACCENTS[sessionType].glow,
-          } as React.CSSProperties
-        }
-      >
+      <div className="relative grid grid-cols-3 rounded-full bg-[oklch(0.3_0.045_140)] p-1">
         <div
           aria-hidden
           className="pill-slide glow-pill absolute inset-y-1 left-1 rounded-full transition-transform duration-300 ease-out"
@@ -59,10 +48,9 @@ export function TimerControls({
             disabled={disabled}
             onClick={() => onSelectSession(type)}
             aria-pressed={type === sessionType}
-            style={type === sessionType ? { color: "oklch(0.2 0 0)" } : undefined}
             className={cn(
               "relative z-10 cursor-pointer rounded-full px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors disabled:cursor-not-allowed sm:px-4",
-              type === sessionType ? "" : "text-muted-foreground hover:text-foreground",
+              type === sessionType ? "text-black" : "text-white/70 hover:text-white",
             )}
           >
             {SESSION_LABELS[type]}
@@ -72,30 +60,30 @@ export function TimerControls({
 
       <div className="flex items-center gap-3">
         {status === "idle" && (
-          <Button size="lg" onClick={onStart}>
+          <button type="button" className={ACTION_PILL} onClick={onStart}>
             Iniciar
-          </Button>
+          </button>
         )}
         {status === "running" && (
-          <Button size="lg" variant="secondary" onClick={onPause}>
+          <button type="button" className={ACTION_PILL} onClick={onPause}>
             Pausar
-          </Button>
+          </button>
         )}
         {status === "paused" && (
-          <Button size="lg" onClick={onResume}>
+          <button type="button" className={ACTION_PILL} onClick={onResume}>
             Retomar
-          </Button>
+          </button>
         )}
         {status === "completed" && (
-          <Button size="lg" onClick={onAdvance}>
+          <button type="button" className={ACTION_PILL} onClick={onAdvance}>
             Próxima sessão
-          </Button>
+          </button>
         )}
 
         {status !== "idle" && status !== "completed" && (
-          <Button size="lg" variant="ghost" onClick={onReset}>
+          <button type="button" className={ACTION_PILL} onClick={onReset}>
             Resetar
-          </Button>
+          </button>
         )}
       </div>
     </div>

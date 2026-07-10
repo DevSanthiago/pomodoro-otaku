@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Timer, ListTodo, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 const LINKS = [
   { href: "/", label: "Timer", icon: Timer },
@@ -17,7 +16,7 @@ export function TopBar() {
 
   return (
     <header
-      className="flex items-center justify-between gap-2 py-3"
+      className="flex items-center gap-2 py-3"
       style={{
         paddingTop: "max(0.75rem, env(safe-area-inset-top))",
         paddingLeft: "max(1.25rem, env(safe-area-inset-left))",
@@ -45,7 +44,6 @@ export function TopBar() {
           );
         })}
       </nav>
-      <ThemeToggle />
     </header>
   );
 }

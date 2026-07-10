@@ -130,25 +130,18 @@
 }
 
 .glow-pill {
-  background: var(--accent-base);
-  box-shadow: 0 0 18px -4px var(--accent-glow);
+  background: #ffffff;
+  box-shadow: 0 0 20px -4px rgba(255, 255, 255, 0.65);
 }
 
 .timer-ring {
-  stroke: var(--accent-base);
-}
-
-.dark .timer-ring {
-  filter: drop-shadow(0 0 7px var(--accent-glow));
+  stroke: #ffffff;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
 }
 
 .timer-number {
-  color: var(--accent-strong);
-}
-
-.dark .timer-number {
-  color: var(--accent-base);
-  text-shadow: 0 0 18px var(--accent-glow);
+  color: #ffffff;
+  text-shadow: 0 0 22px rgba(255, 255, 255, 0.35);
 }
 
 @media (prefers-reduced-motion: reduce) {

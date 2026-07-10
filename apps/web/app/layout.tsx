@@ -6,8 +6,6 @@ import { ConquistaToast } from "@/components/gamification/conquista-toast";
 import { TopBar } from "@/components/layout/top-bar";
 import { PillarBackground } from "@/components/backgrounds/pillar-background";
 
-const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d);}catch(e){}})();`;
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,10 +34,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
-  ],
+  themeColor: "#000000",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -53,11 +48,9 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <ServiceWorkerRegister />
         <PillarBackground />
         <div className="relative z-10 flex flex-1 flex-col">
