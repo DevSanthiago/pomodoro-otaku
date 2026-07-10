@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import { formatRemaining } from "@/lib/timer-engine";
 
 interface TimerDisplayProps {
@@ -5,6 +6,7 @@ interface TimerDisplayProps {
   progress: number;
   label: string;
   completed: boolean;
+  editable?: boolean;
 }
 
 const RADIUS = 130;
@@ -15,6 +17,7 @@ export function TimerDisplay({
   progress,
   label,
   completed,
+  editable = false,
 }: TimerDisplayProps) {
   const offset = CIRCUMFERENCE * (1 - progress);
 
@@ -44,10 +47,13 @@ export function TimerDisplay({
 
       <div className="flex flex-col items-center gap-1">
         <span
-          className="text-sm font-bold uppercase tracking-[0.18em] text-white"
+          className="flex items-center gap-1 text-sm font-bold uppercase tracking-[0.18em] text-white"
           style={{ textShadow: "0 1px 10px rgba(0,0,0,0.65)" }}
         >
           {label}
+          {editable && (
+            <ChevronDown className="size-3.5 text-white/50 transition-colors group-hover:text-white/90" />
+          )}
         </span>
         <span className="timer-number font-mono text-6xl font-semibold tabular-nums">
           {formatRemaining(remainingMs)}
