@@ -20,9 +20,9 @@ export function DurationMenu({ sessionType, durationMin, onSelect }: DurationMen
     <div
       role="menu"
       aria-label="Duração"
-      className="absolute top-full left-1/2 z-20 mt-4 w-64 -translate-x-1/2 rounded-2xl border border-white/10 bg-black/80 p-1.5 shadow-2xl backdrop-blur-xl"
+      className="menu-in absolute top-full left-1/2 z-20 mt-4 w-64 -translate-x-1/2 rounded-2xl border border-white/10 bg-black/80 p-1.5 shadow-2xl backdrop-blur-xl"
     >
-      {DURATION_OPTIONS_MIN.map((min) => {
+      {DURATION_OPTIONS_MIN.map((min, index) => {
         const active = min === durationMin;
         return (
           <button
@@ -31,8 +31,9 @@ export function DurationMenu({ sessionType, durationMin, onSelect }: DurationMen
             role="menuitemradio"
             aria-checked={active}
             onClick={() => onSelect(min)}
+            style={{ animationDelay: `${index * 30}ms` }}
             className={cn(
-              "flex w-full cursor-pointer items-center justify-between gap-4 rounded-xl px-3 py-2.5 text-sm transition-colors",
+              "item-in flex w-full cursor-pointer items-center justify-between gap-4 rounded-xl px-3 py-2.5 text-sm transition-colors",
               active ? "bg-white text-black" : "text-white/80 hover:bg-white/10 hover:text-white",
             )}
           >

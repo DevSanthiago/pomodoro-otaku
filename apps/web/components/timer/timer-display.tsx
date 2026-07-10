@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import { formatRemaining } from "@/lib/timer-engine";
+import { AnimatedTime } from "./animated-time";
 
 interface TimerDisplayProps {
   remainingMs: number;
@@ -7,6 +7,7 @@ interface TimerDisplayProps {
   label: string;
   completed: boolean;
   editable?: boolean;
+  roll?: boolean;
 }
 
 const RADIUS = 130;
@@ -18,6 +19,7 @@ export function TimerDisplay({
   label,
   completed,
   editable = false,
+  roll = true,
 }: TimerDisplayProps) {
   const offset = CIRCUMFERENCE * (1 - progress);
 
@@ -55,9 +57,7 @@ export function TimerDisplay({
             <ChevronDown className="size-3.5 text-white/50 transition-colors group-hover:text-white/90" />
           )}
         </span>
-        <span className="timer-number font-mono text-6xl font-semibold tabular-nums">
-          {formatRemaining(remainingMs)}
-        </span>
+        <AnimatedTime ms={remainingMs} roll={roll} />
         <span className="h-4 text-xs text-white/60">
           {completed ? "Concluído!" : ""}
         </span>

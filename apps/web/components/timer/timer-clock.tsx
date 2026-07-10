@@ -16,6 +16,13 @@ interface TimerClockProps {
   onSelectDuration: (durationMin: DurationMin) => void;
 }
 
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
 export function TimerClock({
   remainingMs,
   progress,
@@ -28,6 +35,7 @@ export function TimerClock({
 }: TimerClockProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const discRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -45,6 +53,14 @@ export function TimerClock({
     };
   }, [open]);
 
+  function pulseDisc() {
+    if (prefersReducedMotion()) return;
+    discRef.current?.animate(
+      [{ transform: "scale(1)" }, { transform: "scale(1.045)" }, { transform: "scale(1)" }],
+      { duration: 420, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+    );
+  }
+
   return (
     <div ref={ref} className="relative flex flex-col items-center">
       <button
@@ -57,6 +73,7 @@ export function TimerClock({
         className="group relative rounded-full outline-none disabled:cursor-default"
       >
         <span
+          ref={discRef}
           aria-hidden
           className="absolute inset-4 rounded-full bg-white/[0.06] ring-1 ring-white/10 backdrop-blur-md transition-colors group-hover:bg-white/[0.1] group-focus-visible:bg-white/[0.1]"
         />
@@ -76,6 +93,7 @@ export function TimerClock({
           onSelect={(min) => {
             onSelectDuration(min);
             setOpen(false);
+            pulseDisc();
           }}
         />
       )}
