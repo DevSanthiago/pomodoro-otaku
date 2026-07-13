@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Api.Auth;
 using Api.Data;
 using Api.Endpoints;
 using Api.Services;
@@ -16,6 +17,8 @@ if (!string.IsNullOrWhiteSpace(port))
 var connectionString = DatabaseConnection.Resolve(builder.Configuration);
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+
+builder.Services.AddGoogleIdTokenAuth(builder.Configuration);
 
 builder.Services.AddScoped<TaskService>();
 builder.Services.AddScoped<PomodoroSessionService>();
@@ -43,6 +46,8 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors(webCorsPolicy);
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapGet("/", () => "Pomodoro Otaku API");
 app.MapTaskEndpoints();

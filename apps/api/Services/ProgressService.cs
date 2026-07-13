@@ -8,14 +8,15 @@ namespace Api.Services;
 
 public class ProgressService(AppDbContext db)
 {
-    public async Task<UserProgress> GetOrCreateAsync()
+    public async Task<UserProgress> GetOrCreateAsync(string userId)
     {
-        var progress = await db.Progress.FirstOrDefaultAsync();
+        var progress = await db.Progress.FirstOrDefaultAsync(item => item.UserId == userId);
         if (progress is not null) return progress;
 
         progress = new UserProgress
         {
             Id = Guid.NewGuid(),
+            UserId = userId,
             Nivel = OneForAll.NivelParaXp(0),
             PersonagemAtual = OneForAll.PersonagemParaXp(0),
             AtualizadaEm = DateTime.UtcNow,
@@ -25,9 +26,9 @@ public class ProgressService(AppDbContext db)
         return progress;
     }
 
-    public async Task<UserProgress> UpsertAsync(PutProgressDto dto)
+    public async Task<UserProgress> UpsertAsync(string userId, PutProgressDto dto)
     {
-        var progress = await GetOrCreateAsync();
+        var progress = await GetOrCreateAsync(userId);
         if (dto.AtualizadaEm < progress.AtualizadaEm) return progress;
 
         progress.XpTotal = Math.Max(0, dto.XpTotal);

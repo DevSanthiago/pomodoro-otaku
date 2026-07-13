@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Api.Models;
 
 public enum TaskItemStatus
@@ -10,6 +12,9 @@ public enum TaskItemStatus
 public class TaskItem
 {
     public Guid Id { get; set; }
+
+    [JsonIgnore]
+    public string UserId { get; set; } = string.Empty;
     public string Titulo { get; set; } = string.Empty;
     public string? Descricao { get; set; }
     public TaskItemStatus Status { get; set; } = TaskItemStatus.Pendente;

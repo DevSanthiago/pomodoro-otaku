@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Timer, ListTodo, User } from "lucide-react";
+import { Timer, ListTodo, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { sair } from "@/lib/auth/actions";
 
 const LINKS = [
   { href: "/", label: "Timer", icon: Timer },
@@ -13,6 +14,8 @@ const LINKS = [
 
 export function TopBar() {
   const pathname = usePathname();
+
+  if (pathname === "/login") return null;
 
   return (
     <header
@@ -44,6 +47,16 @@ export function TopBar() {
           );
         })}
       </nav>
+
+      <form action={sair} className="ml-auto">
+        <button
+          type="submit"
+          aria-label="Sair"
+          className="inline-flex size-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+        >
+          <LogOut className="size-4" />
+        </button>
+      </form>
     </header>
   );
 }

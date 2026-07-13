@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Api.Auth;
 using Api.Domain;
 using Api.Models;
 using Api.Services;
@@ -9,16 +11,19 @@ public static class PomodoroSessionEndpoints
 {
     public static RouteGroupBuilder MapPomodoroSessionEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/pomodoro-sessions");
+        var group = routes
+            .MapGroup("/pomodoro-sessions")
+            .RequireAuthorization(GoogleAuth.AllowlistPolicy);
 
-        group.MapGet("/", (Guid? taskId, PomodoroSessionService sessions) =>
-            sessions.GetAsync(taskId));
+        group.MapGet("/", (Guid? taskId, ClaimsPrincipal user, PomodoroSessionService sessions) =>
+            sessions.GetAsync(user.UserId(), taskId));
 
         group.MapPost("/", async Task<Results<Created<PomodoroSession>, ValidationProblem>> (
             CreateSessionDto dto,
+            ClaimsPrincipal user,
             PomodoroSessionService sessions) =>
         {
-            var result = await sessions.CreateAsync(dto);
+            var result = await sessions.CreateAsync(user.UserId(), dto);
             return result.Status switch
             {
                 ResultStatus.Success =>
