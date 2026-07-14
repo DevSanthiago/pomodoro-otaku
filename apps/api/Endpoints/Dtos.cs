@@ -23,6 +23,20 @@ public record CreateSessionDto(
     bool FoiInterrompido
 );
 
+public record RegisterDto(string Email, string Senha, string? Nome);
+
+public record LoginDto(string Email, string Senha);
+
+public record GoogleSignInDto(string IdToken);
+
+public record AuthResponseDto(
+    string Token,
+    DateTime ExpiraEm,
+    Guid UserId,
+    string Email,
+    string NomeExibicao
+);
+
 public record PutProgressDto(
     int XpTotal,
     int FocosConcluidos,

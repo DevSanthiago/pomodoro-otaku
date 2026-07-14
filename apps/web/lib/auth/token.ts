@@ -2,7 +2,7 @@ const OWNER_KEY = "pomodoro-otaku-user";
 
 export interface SessionToken {
   userId: string;
-  idToken: string;
+  token: string;
   expiresAt: number;
 }
 
@@ -44,7 +44,7 @@ export function userIdConhecido(): string | null {
 }
 
 export async function authHeaders(): Promise<Record<string, string>> {
-  const token = await getSessionToken();
-  if (!token) throw new NaoAutenticadoError();
-  return { Authorization: `Bearer ${token.idToken}` };
+  const sessao = await getSessionToken();
+  if (!sessao) throw new NaoAutenticadoError();
+  return { Authorization: `Bearer ${sessao.token}` };
 }

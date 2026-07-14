@@ -15,7 +15,7 @@ const LINKS = [
 export function TopBar() {
   const pathname = usePathname();
 
-  if (pathname === "/login") return null;
+  if (pathname === "/login" || pathname === "/registro") return null;
 
   return (
     <header

@@ -1,38 +1,57 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
 
-const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5279";
 
-interface GoogleRefreshResponse {
-  id_token?: string;
-  refresh_token?: string;
-  expires_in?: number;
+interface AuthResponse {
+  token: string;
+  expiraEm: string;
+  userId: string;
+  email: string;
+  nomeExibicao: string;
 }
 
-async function refreshIdToken(refreshToken: string): Promise<GoogleRefreshResponse | null> {
-  const response = await fetch(GOOGLE_TOKEN_URL, {
+export async function postAuth(
+  path: string,
+  body: Record<string, string>,
+): Promise<AuthResponse | null> {
+  const response = await fetch(`${API_URL}/auth/${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: process.env.AUTH_GOOGLE_ID ?? "",
-      client_secret: process.env.AUTH_GOOGLE_SECRET ?? "",
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
   });
   if (!response.ok) return null;
-  return (await response.json()) as GoogleRefreshResponse;
+  return (await response.json()) as AuthResponse;
+}
+
+function comoSessao(auth: AuthResponse) {
+  return {
+    id: auth.userId,
+    email: auth.email,
+    name: auth.nomeExibicao,
+    apiToken: auth.token,
+    apiExpiraEm: Math.floor(new Date(auth.expiraEm).getTime() / 1000),
+  };
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Google({
-      authorization: {
-        params: {
-          scope: "openid email profile",
-          access_type: "offline",
-          prompt: "consent",
-        },
+      authorization: { params: { scope: "openid email profile" } },
+    }),
+    Credentials({
+      credentials: {
+        email: { label: "E-mail", type: "email" },
+        senha: { label: "Senha", type: "password" },
+      },
+      authorize: async (credentials) => {
+        const email = credentials?.email;
+        const senha = credentials?.senha;
+        if (typeof email !== "string" || typeof senha !== "string") return null;
+
+        const autenticado = await postAuth("login", { email, senha });
+        return autenticado ? comoSessao(autenticado) : null;
       },
     }),
   ],
@@ -41,40 +60,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: "/login",
   },
   callbacks: {
-    signIn: ({ profile }) => Boolean(profile?.email && profile.email_verified),
-
-    jwt: async ({ token, account }) => {
-      if (account) {
+    jwt: async ({ token, account, user }) => {
+      if (account?.provider === "google" && typeof account.id_token === "string") {
+        const autenticado = await postAuth("google", { idToken: account.id_token });
+        if (!autenticado) return { ...token, apiToken: undefined };
+        const sessao = comoSessao(autenticado);
         return {
           ...token,
-          idToken: account.id_token,
-          refreshToken: account.refresh_token ?? token.refreshToken,
-          expiresAt: account.expires_at ?? 0,
+          sub: sessao.id,
+          email: sessao.email,
+          name: sessao.name,
+          apiToken: sessao.apiToken,
+          apiExpiraEm: sessao.apiExpiraEm,
         };
       }
 
-      const expiresAt = typeof token.expiresAt === "number" ? token.expiresAt : 0;
-      if (Date.now() < (expiresAt - 60) * 1000) return token;
+      if (user && "apiToken" in user && typeof user.apiToken === "string") {
+        return {
+          ...token,
+          sub: user.id,
+          apiToken: user.apiToken,
+          apiExpiraEm: typeof user.apiExpiraEm === "number" ? user.apiExpiraEm : 0,
+        };
+      }
 
-      const refreshToken = typeof token.refreshToken === "string" ? token.refreshToken : null;
-      if (!refreshToken) return { ...token, idToken: undefined };
-
-      const refreshed = await refreshIdToken(refreshToken);
-      if (!refreshed?.id_token) return { ...token, idToken: undefined };
-
-      return {
-        ...token,
-        idToken: refreshed.id_token,
-        refreshToken: refreshed.refresh_token ?? refreshToken,
-        expiresAt: Math.floor(Date.now() / 1000) + (refreshed.expires_in ?? 3600),
-      };
+      return token;
     },
 
     session: ({ session, token }) => ({
       ...session,
       userId: typeof token.sub === "string" ? token.sub : "",
-      idToken: typeof token.idToken === "string" ? token.idToken : undefined,
-      expiresAt: typeof token.expiresAt === "number" ? token.expiresAt : 0,
+      apiToken: typeof token.apiToken === "string" ? token.apiToken : undefined,
+      expiresAt: typeof token.apiExpiraEm === "number" ? token.apiExpiraEm : 0,
     }),
   },
 });

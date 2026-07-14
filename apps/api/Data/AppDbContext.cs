@@ -5,12 +5,24 @@ namespace Api.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    public DbSet<User> Users => Set<User>();
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
     public DbSet<PomodoroSession> PomodoroSessions => Set<PomodoroSession>();
     public DbSet<UserProgress> Progress => Set<UserProgress>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.Property(user => user.Email).HasMaxLength(255).IsRequired();
+            entity.HasIndex(user => user.Email).IsUnique();
+            entity.Property(user => user.NomeExibicao).HasMaxLength(100);
+            entity.Property(user => user.SenhaHash).HasMaxLength(255);
+            entity.Property(user => user.GoogleSub).HasMaxLength(255);
+            entity.HasIndex(user => user.GoogleSub).IsUnique();
+            entity.Property(user => user.CriadoEm).HasDefaultValueSql("now()");
+        });
+
         modelBuilder.Entity<TaskItem>(entity =>
         {
             entity.Property(task => task.UserId).HasMaxLength(255).IsRequired();

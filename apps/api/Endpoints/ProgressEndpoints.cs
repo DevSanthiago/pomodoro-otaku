@@ -8,7 +8,7 @@ public static class ProgressEndpoints
 {
     public static RouteGroupBuilder MapProgressEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/progress").RequireAuthorization(GoogleAuth.UsuarioPolicy);
+        var group = routes.MapGroup("/progress").RequireAuthorization(ApiAuth.UsuarioPolicy);
 
         group.MapGet("/", (ClaimsPrincipal user, ProgressService progress) =>
             progress.GetOrCreateAsync(user.UserId()));
