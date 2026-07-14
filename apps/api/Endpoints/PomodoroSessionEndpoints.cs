@@ -13,7 +13,7 @@ public static class PomodoroSessionEndpoints
     {
         var group = routes
             .MapGroup("/pomodoro-sessions")
-            .RequireAuthorization(GoogleAuth.AllowlistPolicy);
+            .RequireAuthorization(GoogleAuth.UsuarioPolicy);
 
         group.MapGet("/", (Guid? taskId, ClaimsPrincipal user, PomodoroSessionService sessions) =>
             sessions.GetAsync(user.UserId(), taskId));

@@ -3,11 +3,6 @@ import Google from "next-auth/providers/google";
 
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 
-const allowedEmails = (process.env.ALLOWED_EMAILS ?? "")
-  .split(",")
-  .map((email) => email.trim().toLowerCase())
-  .filter((email) => email.length > 0);
-
 interface GoogleRefreshResponse {
   id_token?: string;
   refresh_token?: string;
@@ -46,10 +41,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: "/login",
   },
   callbacks: {
-    signIn: ({ profile }) => {
-      const email = profile?.email?.toLowerCase();
-      return Boolean(email && profile?.email_verified && allowedEmails.includes(email));
-    },
+    signIn: ({ profile }) => Boolean(profile?.email && profile.email_verified),
 
     jwt: async ({ token, account }) => {
       if (account) {

@@ -32,7 +32,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
       {error ? (
         <p className="max-w-xs text-center text-sm text-red-400">
-          Essa conta não tem acesso ao app.
+          Não foi possível entrar. Tente de novo.
         </p>
       ) : null}
     </main>

@@ -6,7 +6,7 @@ namespace Api.Auth;
 
 public static class GoogleAuth
 {
-    public const string AllowlistPolicy = "allowlist";
+    public const string UsuarioPolicy = "usuario";
 
     public const string SubClaim = "sub";
     public const string EmailClaim = "email";
@@ -21,16 +21,6 @@ public static class GoogleAuth
     {
         var clientId = configuration["GOOGLE_CLIENT_ID"]
             ?? throw new InvalidOperationException("GOOGLE_CLIENT_ID não configurado");
-
-        var allowedEmails = (configuration["ALLOWED_EMAILS"] ?? string.Empty)
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(email => email.ToLowerInvariant())
-            .ToHashSet();
-
-        if (allowedEmails.Count == 0)
-        {
-            throw new InvalidOperationException("ALLOWED_EMAILS não configurado");
-        }
 
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -50,14 +40,13 @@ public static class GoogleAuth
                 };
             });
 
-        services.AddAuthorizationBuilder().AddPolicy(AllowlistPolicy, policy =>
+        services.AddAuthorizationBuilder().AddPolicy(UsuarioPolicy, policy =>
             policy.RequireAssertion(context =>
             {
-                var email = context.User.FindFirstValue(EmailClaim)?.ToLowerInvariant();
-                var verificado = context.User.FindFirstValue(EmailVerifiedClaim);
-                return email is not null
-                    && string.Equals(verificado, "true", StringComparison.OrdinalIgnoreCase)
-                    && allowedEmails.Contains(email);
+                var sub = context.User.FindFirstValue(SubClaim);
+                var emailVerificado = context.User.FindFirstValue(EmailVerifiedClaim);
+                return !string.IsNullOrWhiteSpace(sub)
+                    && string.Equals(emailVerificado, "true", StringComparison.OrdinalIgnoreCase);
             }));
 
         return services;

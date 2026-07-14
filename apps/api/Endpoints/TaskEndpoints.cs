@@ -11,7 +11,7 @@ public static class TaskEndpoints
 {
     public static RouteGroupBuilder MapTaskEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/tasks").RequireAuthorization(GoogleAuth.AllowlistPolicy);
+        var group = routes.MapGroup("/tasks").RequireAuthorization(GoogleAuth.UsuarioPolicy);
 
         group.MapGet("/", (ClaimsPrincipal user, TaskService tasks) =>
             tasks.GetAllAsync(user.UserId()));
