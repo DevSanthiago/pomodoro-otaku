@@ -75,13 +75,13 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   toggleDone: async (id) => {
     const current = get().tasks.find((task) => task.id === id);
     if (!current) return;
-    const updated = toggleTaskDone(current);
+    const { task: updated, concedeXp } = toggleTaskDone(current);
     await putTask(updated);
     await enqueueOp({ type: "upsert", taskId: id, task: updated });
     set({
       tasks: sortTasks(get().tasks.map((task) => (task.id === id ? updated : task))),
     });
-    if (updated.status === "concluida") {
+    if (concedeXp) {
       void useGamificationStore.getState().registrarTarefaConcluida();
     }
     await reloadPending(set);
