@@ -5,8 +5,10 @@ import {
   deleteTask,
   enqueueOp,
   countOutboxOps,
+  ensureOwner,
 } from "@/lib/db";
 import { syncTasks } from "@/lib/sync/sync-engine";
+import { userIdConhecido } from "@/lib/auth/token";
 import { useGamificationStore } from "@/stores/gamification-store";
 import {
   createTask,
@@ -40,6 +42,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   pendingSync: 0,
 
   hydrate: async () => {
+    const userId = userIdConhecido();
+    if (userId) await ensureOwner(userId);
     const tasks = await getAllTasks();
     set({ tasks: sortTasks(tasks), hydrated: true });
     await reloadPending(set);
@@ -71,13 +75,13 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   toggleDone: async (id) => {
     const current = get().tasks.find((task) => task.id === id);
     if (!current) return;
-    const updated = toggleTaskDone(current);
+    const { task: updated, concedeXp } = toggleTaskDone(current);
     await putTask(updated);
     await enqueueOp({ type: "upsert", taskId: id, task: updated });
     set({
       tasks: sortTasks(get().tasks.map((task) => (task.id === id ? updated : task))),
     });
-    if (updated.status === "concluida") {
+    if (concedeXp) {
       void useGamificationStore.getState().registrarTarefaConcluida();
     }
     await reloadPending(set);

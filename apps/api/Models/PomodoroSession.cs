@@ -12,6 +12,9 @@ public enum SessionType
 public class PomodoroSession
 {
     public Guid Id { get; set; }
+
+    [JsonIgnore]
+    public string UserId { get; set; } = string.Empty;
     public Guid? TaskId { get; set; }
 
     [JsonIgnore]

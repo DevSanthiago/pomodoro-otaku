@@ -3,12 +3,14 @@ import type { Task } from "./task";
 import type { Progress } from "./gamification";
 
 const DB_NAME = "pomodoro-otaku";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 const TASKS_STORE = "tasks";
 const TASKS_BY_CRIADA_EM = "by-criadaEm";
 const OUTBOX_STORE = "outbox";
 const PROGRESS_STORE = "progress";
 const PROGRESS_KEY = "singleton";
+const META_STORE = "meta";
+const OWNER_KEY = "owner";
 
 export type SyncOpType = "upsert" | "delete";
 
@@ -33,6 +35,10 @@ interface PomodoroOtakuDB extends DBSchema {
     key: string;
     value: Progress;
   };
+  meta: {
+    key: string;
+    value: string;
+  };
 }
 
 let dbPromise: Promise<IDBPDatabase<PomodoroOtakuDB>> | null = null;
@@ -53,6 +59,9 @@ function getDb(): Promise<IDBPDatabase<PomodoroOtakuDB>> {
         }
         if (oldVersion < 3) {
           db.createObjectStore(PROGRESS_STORE);
+        }
+        if (oldVersion < 4) {
+          db.createObjectStore(META_STORE);
         }
       },
     });
@@ -93,6 +102,21 @@ export async function removeOp(seq: number): Promise<void> {
 export async function countOutboxOps(): Promise<number> {
   const db = await getDb();
   return db.count(OUTBOX_STORE);
+}
+
+export async function ensureOwner(userId: string): Promise<void> {
+  const db = await getDb();
+  const owner = await db.get(META_STORE, OWNER_KEY);
+  if (owner === userId) return;
+
+  const tx = db.transaction([TASKS_STORE, OUTBOX_STORE, PROGRESS_STORE, META_STORE], "readwrite");
+  await Promise.all([
+    tx.objectStore(TASKS_STORE).clear(),
+    tx.objectStore(OUTBOX_STORE).clear(),
+    tx.objectStore(PROGRESS_STORE).clear(),
+    tx.objectStore(META_STORE).put(userId, OWNER_KEY),
+    tx.done,
+  ]);
 }
 
 export async function getProgress(): Promise<Progress | undefined> {

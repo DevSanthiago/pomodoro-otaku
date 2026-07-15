@@ -7,6 +7,10 @@ dist/
 out/
 build/
 
+# .NET
+bin/
+obj/
+
 # env / secrets
 .env
 .env*.local

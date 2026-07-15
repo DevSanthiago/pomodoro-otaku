@@ -1,5 +1,6 @@
 import type { Task, TaskStatus } from "./task";
 import type { Progress } from "./gamification";
+import { authHeaders } from "./auth/token";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5279";
 
@@ -42,7 +43,7 @@ function fromApiTask(dto: ApiTask): Task {
 export async function putTaskRemote(task: Task): Promise<void> {
   const response = await fetch(`${API_URL}/tasks/${task.id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(toApiBody(task)),
   });
   if (!response.ok) {
@@ -51,14 +52,17 @@ export async function putTaskRemote(task: Task): Promise<void> {
 }
 
 export async function deleteTaskRemote(id: string): Promise<void> {
-  const response = await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" });
+  const response = await fetch(`${API_URL}/tasks/${id}`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  });
   if (!response.ok && response.status !== 404) {
     throw new Error(`DELETE /tasks/${id} respondeu ${response.status}`);
   }
 }
 
 export async function listTasksRemote(): Promise<Task[]> {
-  const response = await fetch(`${API_URL}/tasks`);
+  const response = await fetch(`${API_URL}/tasks`, { headers: await authHeaders() });
   if (!response.ok) {
     throw new Error(`GET /tasks respondeu ${response.status}`);
   }
@@ -110,7 +114,7 @@ function toApiProgressBody(progress: Progress) {
 }
 
 export async function getProgressRemote(): Promise<Progress> {
-  const response = await fetch(`${API_URL}/progress`);
+  const response = await fetch(`${API_URL}/progress`, { headers: await authHeaders() });
   if (!response.ok) {
     throw new Error(`GET /progress respondeu ${response.status}`);
   }
@@ -120,7 +124,7 @@ export async function getProgressRemote(): Promise<Progress> {
 export async function putProgressRemote(progress: Progress): Promise<Progress> {
   const response = await fetch(`${API_URL}/progress`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(toApiProgressBody(progress)),
   });
   if (!response.ok) {

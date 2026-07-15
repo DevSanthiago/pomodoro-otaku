@@ -9,6 +9,7 @@ export interface Task {
   pomodorosCompletados: number;
   criadaEm: number;
   atualizadaEm: number;
+  xpConcedido?: boolean;
 }
 
 export interface NewTaskInput {
@@ -78,11 +79,22 @@ export function applyPatch(task: Task, patch: TaskPatch, now: number = Date.now(
   };
 }
 
-export function toggleTaskDone(task: Task, now: number = Date.now()): Task {
+export interface ToggleResult {
+  task: Task;
+  concedeXp: boolean;
+}
+
+export function toggleTaskDone(task: Task, now: number = Date.now()): ToggleResult {
+  const concluindo = task.status !== "concluida";
+  const primeiraConclusao = concluindo && !task.xpConcedido;
   return {
-    ...task,
-    status: task.status === "concluida" ? "pendente" : "concluida",
-    atualizadaEm: now,
+    task: {
+      ...task,
+      status: concluindo ? "concluida" : "pendente",
+      xpConcedido: task.xpConcedido || primeiraConclusao,
+      atualizadaEm: now,
+    },
+    concedeXp: primeiraConclusao,
   };
 }
 

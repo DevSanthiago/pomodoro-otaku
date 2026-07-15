@@ -1,8 +1,13 @@
+using System.Text.Json.Serialization;
+
 namespace Api.Models;
 
 public class UserProgress
 {
     public Guid Id { get; set; }
+
+    [JsonIgnore]
+    public string UserId { get; set; } = string.Empty;
     public int XpTotal { get; set; }
     public int FocosConcluidos { get; set; }
     public int TarefasConcluidas { get; set; }

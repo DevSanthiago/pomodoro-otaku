@@ -38,7 +38,7 @@ async function pullAndReconcile(): Promise<void> {
     serverIds.add(server.id);
     const local = localById.get(server.id);
     if (!local || server.atualizadaEm > local.atualizadaEm) {
-      await putTask(server);
+      await putTask(local?.xpConcedido ? { ...server, xpConcedido: true } : server);
     }
   }
 

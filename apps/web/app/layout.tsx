@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
+import { SessionBoot } from "@/components/auth/session-boot";
 import { ConquistaToast } from "@/components/gamification/conquista-toast";
 import { TopBar } from "@/components/layout/top-bar";
 import { PillarBackground } from "@/components/backgrounds/pillar-background";
@@ -52,6 +53,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ServiceWorkerRegister />
+        <SessionBoot />
         <PillarBackground />
         <div className="relative z-10 flex flex-1 flex-col">
           <TopBar />
